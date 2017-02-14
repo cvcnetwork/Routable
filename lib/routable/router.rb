@@ -87,10 +87,6 @@ module Routable
     # router.open("users/3")
     # => router.navigation_controller pushes a UsersController
     def open(url, animated = true, &block)
-      if self.routes.exclude? url
-        raise RouteNotFound, "No route found for URL '#{url}'"
-      end
-
       controller_options = options_for_url(url)
 
       if controller_options[:callback]
@@ -170,7 +166,7 @@ module Routable
       open_options = nil
       open_params = {}
 
-      self.routes.each { |format, options|
+      self.routes.each do |format, options|
 
         # If the # of path components isn't the same, then
         # it for sure isn't a match.
@@ -207,7 +203,11 @@ module Routable
 
         open_options = options
         open_params = format_params
-      }
+      end
+
+      if open_options.nil?
+        raise(RouteNotFound, "No route found for URL '#{url}'")
+      end
 
       @url_options_cache[url] = open_options.merge(open_params: open_params)
     end
